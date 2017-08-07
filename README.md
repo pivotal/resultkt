@@ -1,9 +1,21 @@
 Result
 ======
 
-## Usage
-
 Results represent success or failure of an operation. They have sweet methods for doing great things.
+
+## Installation
+
+Add jitpack as a maven repository and then add the result dependency
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+    
+    dependencies {
+        compile 'com.github.pivotal:resultkt:1.0.0'
+    }
+
+## Usage
 
 You can make a result and access its values
 
