@@ -1,7 +1,7 @@
 package io.pivotal.iad.result
 
-import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 class ResultTest {
     @Test
@@ -39,7 +39,7 @@ class ResultTest {
 
         var successString: String? = null
         var failureString: String? = null
-        var hasBeenCalled: Boolean = false
+        var hasBeenCalled = false
 
         success.success { successString = it }
         success.failure { hasBeenCalled = true }
@@ -96,6 +96,15 @@ class ResultTest {
         )
         assertThat(tapped).isEqualTo("sad string")
         assertThat(returnedFailure).isEqualTo(failure)
+    }
+
+    @Test
+    fun tapDoesNothingIfAHandlerIsNotSpecified() {
+        val success: Result<String, Any> = Result.success("happy string")
+        val failure: Result<Any, String> = Result.failure("sad string")
+
+        success.tap { }
+        failure.tap { }
     }
 
     @Test
