@@ -5,35 +5,21 @@ import org.junit.jupiter.api.Test
 
 class ResultTest {
     @Test
-    fun successfulResults_canBeAccessed() {
+    fun `result booleans and readers work as expected`() {
         val success: Result<String, Any> = Result.success("happy string")
+        val failure: Result<Any, String> = Result.failure("sad string")
+
         assertThat(success.isSuccess()).isTrue()
         assertThat(success.isFailure()).isFalse()
         assertThat(success.success).isEqualTo("happy string")
-        var called = false
-        success.success {
-            called = true
-            assertThat(it).isEqualTo("happy string")
-        }
-        assertThat(called).isTrue()
-    }
 
-    @Test
-    fun failedResults_canBeAccessed() {
-        val failure: Result<Any, String> = Result.failure("sad string")
         assertThat(failure.isSuccess()).isFalse()
         assertThat(failure.isFailure()).isTrue()
         assertThat(failure.failure).isEqualTo("sad string")
-        var called = false
-        failure.failure {
-            called = true
-            assertThat(it).isEqualTo("sad string")
-        }
-        assertThat(called).isTrue()
     }
 
     @Test
-    fun resultCallbacksWorkAsExpected() {
+    fun `result callbacks yield values to consumers`() {
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -53,7 +39,7 @@ class ResultTest {
     }
 
     @Test
-    fun thenWorksAsExpected() {
+    fun `then yields values to success and failure callbacks and can return a value`() {
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -78,7 +64,7 @@ class ResultTest {
     }
 
     @Test
-    fun tapWorksAsExpected(){
+    fun `tap yields values and returns the original result`(){
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -99,7 +85,7 @@ class ResultTest {
     }
 
     @Test
-    fun tapDoesNothingIfAHandlerIsNotSpecified() {
+    fun `tap does nothing if a handler is not specified`() {
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -108,7 +94,7 @@ class ResultTest {
     }
 
     @Test
-    fun successfulResults_canBeTransformed_andFailuresAreIgnored() {
+    fun `map transforms success values and propagates failure values`() {
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -117,7 +103,7 @@ class ResultTest {
     }
 
     @Test
-    fun resultTypes_areCovariant() {
+    fun `result types are covariant`() {
         val stringResult = Result.success<String, String>("foo")
         assertThat(stringResult is Result<Any, Any>).isTrue()
 
