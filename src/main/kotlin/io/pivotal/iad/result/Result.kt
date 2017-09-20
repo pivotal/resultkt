@@ -1,6 +1,6 @@
 package io.pivotal.iad.result
 
-sealed class Result<out T_SUCCESS : Any, out T_FAILURE : Any> {
+sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
     abstract val success: T_SUCCESS
     abstract val failure: T_FAILURE
     abstract fun isSuccess(): Boolean
@@ -9,6 +9,18 @@ sealed class Result<out T_SUCCESS : Any, out T_FAILURE : Any> {
     }
 
     abstract fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE>
+
+    fun <T_MAPPED : Any> flatMap(mapper: (T_SUCCESS) -> Result<T_MAPPED, T_FAILURE>): Result<T_MAPPED, T_FAILURE> {
+        return then(
+                onSuccess = { success ->
+                    mapper(success).then(
+                            onSuccess = { Result.success(it) },
+                            onFailure = { Result.failure(it) }
+                    )
+                },
+                onFailure = { failure -> Result.failure(failure) }
+        )
+    }
 
     fun success(onSuccess: (T_SUCCESS) -> Unit) {
         if (isSuccess()) onSuccess(success)
@@ -46,7 +58,7 @@ sealed class Result<out T_SUCCESS : Any, out T_FAILURE : Any> {
         }
     }
 
-    data class SuccessResult<out T_SUCCESS : Any, out T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
+    data class SuccessResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
         override val success: T_SUCCESS
             get() = value
         override val failure: T_FAILURE
@@ -59,7 +71,7 @@ sealed class Result<out T_SUCCESS : Any, out T_FAILURE : Any> {
         }
     }
 
-    data class FailureResult<out T_SUCCESS : Any, out T_FAILURE : Any>(private val value: T_FAILURE) : Result<T_SUCCESS, T_FAILURE>() {
+    data class FailureResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_FAILURE) : Result<T_SUCCESS, T_FAILURE>() {
         override val failure: T_FAILURE
             get() = value
         override val success: T_SUCCESS

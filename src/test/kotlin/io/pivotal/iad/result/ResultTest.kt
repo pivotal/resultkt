@@ -103,9 +103,19 @@ class ResultTest {
     }
 
     @Test
-    fun `result types are covariant`() {
-        val stringResult = Result.success<String, String>("foo")
-        assertThat(stringResult is Result<Any, Any>).isTrue()
+    fun `flat map transforms success values with a mapper that itself returns a result and propagates failure values`(){
+        val success: Result<String, OtherType> = Result.success("happy string")
+        val failure: Result<Any, String> = Result.failure("sad string")
+
+        assertThat(success.flatMap { Result.success<Int, OtherType>(3) } ).isEqualTo(Result.success<Int, OtherType>(3))
+        assertThat(failure.flatMap<Any> { throw Exception("Should never get here") }).isEqualTo(Result.failure<Any, String>("sad string"))
+    }
+
+    @Test
+    @Suppress("USELESS_IS_CHECK")
+    fun `result success types are covariant`() {
+        val stringResult = Result.success<String, OtherType>("foo")
+        assertThat(stringResult is Result<Any, OtherType>).isTrue()
 
         /* Quoth https://kotlinlang.org/docs/reference/generics.html :
          *   In "clever words" they say that the class C is covariant in the parameter T,
@@ -114,3 +124,5 @@ class ResultTest {
          */
     }
 }
+
+class OtherType
