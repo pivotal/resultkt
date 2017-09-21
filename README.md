@@ -5,7 +5,7 @@ Results represent success or failure of an operation. They have sweet methods fo
 
 ## Installation
 
-Add jitpack as a maven repository and then add the result dependency
+Add [jitpack](https://jitpack.io/) as a maven repository and then add the result dependency
 
 ```gradle
     repositories {
@@ -13,7 +13,7 @@ Add jitpack as a maven repository and then add the result dependency
     }
     
     dependencies {
-        compile 'com.github.pivotal:resultkt:1.0.0'
+        compile 'com.github.pivotal:resultkt:1.1.0'
     }
 ```
 
@@ -46,3 +46,11 @@ At the end of your chained maps you will want to do something on success or fail
            onFailure = { failure(it) }
     )
 ```    
+
+## Publishing a new version
+
+```
+# Publishes HEAD as version 1.2.3
+git tag 1.2.3
+git push && git push --tags
+```
