@@ -56,6 +56,20 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         fun <T_SUCCESS : Any, T_FAILURE : Any> failure(value: T_FAILURE): Result<T_SUCCESS, T_FAILURE> {
             return FailureResult(value)
         }
+
+        fun <T_SUCCESS : Any, T_FAILURE : Any> fromNullable(maybeNull: T_SUCCESS?, whenNull: T_FAILURE): Result<T_SUCCESS, T_FAILURE> {
+            return when (maybeNull) {
+                null -> Result.failure(whenNull)
+                else -> Result.success(maybeNull)
+            }
+        }
+
+        fun <T_SUCCESS : Any, T_FAILURE : Any> fromNullable(maybeNull: T_SUCCESS?, whenNull: () -> T_FAILURE): Result<T_SUCCESS, T_FAILURE> {
+            return when (maybeNull) {
+                null -> Result.failure(whenNull())
+                else -> Result.success(maybeNull)
+            }
+        }
     }
 
     data class SuccessResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {

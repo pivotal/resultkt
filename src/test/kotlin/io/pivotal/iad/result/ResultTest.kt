@@ -64,7 +64,7 @@ class ResultTest {
     }
 
     @Test
-    fun `tap yields values and returns the original result`(){
+    fun `tap yields values and returns the original result`() {
         val success: Result<String, Any> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
@@ -103,11 +103,11 @@ class ResultTest {
     }
 
     @Test
-    fun `flat map transforms success values with a mapper that itself returns a result and propagates failure values`(){
+    fun `flat map transforms success values with a mapper that itself returns a result and propagates failure values`() {
         val success: Result<String, OtherType> = Result.success("happy string")
         val failure: Result<Any, String> = Result.failure("sad string")
 
-        assertThat(success.flatMap { Result.success<Int, OtherType>(3) } ).isEqualTo(Result.success<Int, OtherType>(3))
+        assertThat(success.flatMap { Result.success<Int, OtherType>(3) }).isEqualTo(Result.success<Int, OtherType>(3))
         assertThat(failure.flatMap<Any> { throw Exception("Should never get here") }).isEqualTo(Result.failure<Any, String>("sad string"))
     }
 
@@ -122,6 +122,19 @@ class ResultTest {
          *   or that T is a covariant type parameter. You can think of C as being a
          *   producer of T's, and NOT a consumer of T's.
          */
+    }
+
+    @Test
+    fun `fromNullable lets you easily turn a nullable into a Result`() {
+        val imNull = null
+        val imNotNull = "I'm a real string"
+
+        assertThat(Result.fromNullable(imNotNull, "it was null"))
+                .isEqualTo(Result.success<String, String>("I'm a real string"))
+        assertThat(Result.fromNullable(imNull, "it was null"))
+                .isEqualTo(Result.failure<String, String>("it was null"))
+        assertThat(Result.fromNullable(imNull) { "it was null" })
+                .isEqualTo(Result.failure<String, String>("it was null"))
     }
 }
 
