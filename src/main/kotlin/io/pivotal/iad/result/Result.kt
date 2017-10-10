@@ -48,6 +48,8 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         return this
     }
 
+    abstract fun toNullable(): T_SUCCESS?
+
     companion object {
         fun <T_SUCCESS : Any, T_FAILURE : Any> success(value: T_SUCCESS): Result<T_SUCCESS, T_FAILURE> {
             return SuccessResult(value)
@@ -75,14 +77,16 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
     data class SuccessResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
         override val success: T_SUCCESS
             get() = value
+
         override val failure: T_FAILURE
             get() = throw RuntimeException("not a failure")
-
         override fun isSuccess(): Boolean = true
 
         override fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE> {
             return SuccessResult(mapper(value))
         }
+
+        override fun toNullable(): T_SUCCESS? = success
     }
 
     data class FailureResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_FAILURE) : Result<T_SUCCESS, T_FAILURE>() {
@@ -96,5 +100,7 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         override fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE> {
             return FailureResult(value)
         }
+
+        override fun toNullable(): T_SUCCESS? = null
     }
 }

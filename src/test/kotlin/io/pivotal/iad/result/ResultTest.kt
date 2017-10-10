@@ -136,6 +136,15 @@ class ResultTest {
         assertThat(Result.fromNullable(imNull) { "it was null" })
                 .isEqualTo(Result.failure<String, String>("it was null"))
     }
+
+    @Test
+    fun `toNullable lets you easily turn a Result into a nullable`() {
+        val failed = Result.failure<String, String>("nope")
+        val succeeded = Result.success<String, String>("ok!")
+
+        assertThat(failed.toNullable()).isNull()
+        assertThat(succeeded.toNullable()).isEqualTo("ok!")
+    }
 }
 
 class OtherType
