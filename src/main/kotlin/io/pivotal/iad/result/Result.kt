@@ -22,6 +22,8 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         )
     }
 
+    abstract fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE>
+
     fun success(onSuccess: (T_SUCCESS) -> Unit) {
         if (isSuccess()) onSuccess(success)
     }
@@ -86,6 +88,10 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
             return SuccessResult(mapper(value))
         }
 
+        override fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE> {
+            return Result.success(value)
+        }
+
         override fun toNullable(): T_SUCCESS? = success
     }
 
@@ -99,6 +105,10 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
 
         override fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE> {
             return FailureResult(value)
+        }
+
+        override fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE> {
+            return Result.failure(mapper(value))
         }
 
         override fun toNullable(): T_SUCCESS? = null

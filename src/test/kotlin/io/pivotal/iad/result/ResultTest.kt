@@ -112,6 +112,15 @@ class ResultTest {
     }
 
     @Test
+    fun `map failure transforms failure values and propagates success values`() {
+        val success: Result<Int, String> = Result.success(123)
+        val failure: Result<Int, String> = Result.failure("sad string")
+
+        assertThat(success.mapFailure { throw Exception("Should never get here") }).isEqualTo(Result.success<Int, Boolean>(123))
+        assertThat(failure.mapFailure { it.contains("sad") }).isEqualTo(Result.failure<Int, Boolean>(true))
+    }
+
+    @Test
     @Suppress("USELESS_IS_CHECK")
     fun `result success types are covariant`() {
         val stringResult = Result.success<String, OtherType>("foo")
