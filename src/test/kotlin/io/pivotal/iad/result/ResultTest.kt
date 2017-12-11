@@ -154,6 +154,20 @@ class ResultTest {
         assertThat(failed.toNullable()).isNull()
         assertThat(succeeded.toNullable()).isEqualTo("ok!")
     }
+
+    @Test
+    fun `parition partitions the list on success and failure`(){
+        val mixedList = listOf(
+                Result.failure<String, String>("sad"),
+                Result.success("happy")
+        )
+
+        val (successes, failures) = Result.partition(mixedList)
+
+        assertThat(successes).isEqualTo(listOf("happy"))
+        assertThat(failures).isEqualTo(listOf("sad"))
+
+    }
 }
 
 class OtherType

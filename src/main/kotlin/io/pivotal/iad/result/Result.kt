@@ -74,6 +74,15 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
                 else -> Result.success(maybeNull)
             }
         }
+
+        fun <T_SUCCESS : Any, T_FAILURE : Any> partition(results: List<Result<T_SUCCESS, T_FAILURE>>): Pair<List<T_SUCCESS>, List<T_FAILURE>> {
+            val (successes, failures) = results.partition { it.isSuccess() }
+
+            return Pair(
+                    successes.map { it.success },
+                    failures.map { it.failure }
+            )
+        }
     }
 
     data class SuccessResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
