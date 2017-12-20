@@ -156,7 +156,7 @@ class ResultTest {
     }
 
     @Test
-    fun `parition partitions the list on success and failure`(){
+    fun `partition partitions the list on success and failure`(){
         val mixedList = listOf(
                 Result.failure<String, String>("sad"),
                 Result.success("happy")

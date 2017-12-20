@@ -54,11 +54,11 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
 
     companion object {
         fun <T_SUCCESS : Any, T_FAILURE : Any> success(value: T_SUCCESS): Result<T_SUCCESS, T_FAILURE> {
-            return SuccessResult(value)
+            return Success(value)
         }
 
         fun <T_SUCCESS : Any, T_FAILURE : Any> failure(value: T_FAILURE): Result<T_SUCCESS, T_FAILURE> {
-            return FailureResult(value)
+            return Failure(value)
         }
 
         fun <T_SUCCESS : Any, T_FAILURE : Any> fromNullable(maybeNull: T_SUCCESS?, whenNull: T_FAILURE): Result<T_SUCCESS, T_FAILURE> {
@@ -85,7 +85,7 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         }
     }
 
-    data class SuccessResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
+    data class Success<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_SUCCESS) : Result<T_SUCCESS, T_FAILURE>() {
         override val success: T_SUCCESS
             get() = value
 
@@ -94,7 +94,7 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         override fun isSuccess(): Boolean = true
 
         override fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE> {
-            return SuccessResult(mapper(value))
+            return Success(mapper(value))
         }
 
         override fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE> {
@@ -104,7 +104,7 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         override fun toNullable(): T_SUCCESS? = success
     }
 
-    data class FailureResult<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_FAILURE) : Result<T_SUCCESS, T_FAILURE>() {
+    data class Failure<out T_SUCCESS : Any, T_FAILURE : Any>(private val value: T_FAILURE) : Result<T_SUCCESS, T_FAILURE>() {
         override val failure: T_FAILURE
             get() = value
         override val success: T_SUCCESS
@@ -113,7 +113,7 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         override fun isSuccess(): Boolean = false
 
         override fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE> {
-            return FailureResult(value)
+            return Failure(value)
         }
 
         override fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE> {
