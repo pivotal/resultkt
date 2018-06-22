@@ -8,6 +8,14 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
         return !isSuccess()
     }
 
+    fun success(onSuccess: (T_SUCCESS) -> Unit) {
+        if (isSuccess()) onSuccess(success)
+    }
+
+    fun failure(onFailure: (T_FAILURE) -> Unit) {
+        if (isFailure()) onFailure(failure)
+    }
+
     abstract fun <T_MAPPED : Any> map(mapper: (T_SUCCESS) -> T_MAPPED): Result<T_MAPPED, T_FAILURE>
 
     fun <T_MAPPED : Any> flatMap(mapper: (T_SUCCESS) -> Result<T_MAPPED, T_FAILURE>): Result<T_MAPPED, T_FAILURE> {
@@ -24,12 +32,8 @@ sealed class Result<out T_SUCCESS : Any, T_FAILURE : Any> {
 
     abstract fun <T_MAPPED_FAILURE : Any> mapFailure(mapper: (T_FAILURE) -> T_MAPPED_FAILURE): Result<T_SUCCESS, T_MAPPED_FAILURE>
 
-    fun success(onSuccess: (T_SUCCESS) -> Unit) {
-        if (isSuccess()) onSuccess(success)
-    }
-
-    fun failure(onFailure: (T_FAILURE) -> Unit) {
-        if (isFailure()) onFailure(failure)
+    fun <T_OTHER_SUCCESS : Any> fanout(fn: (T_SUCCESS) -> Result<T_OTHER_SUCCESS, T_FAILURE>): Result<Pair<T_SUCCESS, T_OTHER_SUCCESS>, T_FAILURE> {
+        return flatMap { originalSuccess -> fn(success).map { newSuccess -> Pair(originalSuccess, newSuccess) } }
     }
 
     fun <T_RETURN> then(onSuccess: (T_SUCCESS) -> T_RETURN, onFailure: (T_FAILURE) -> T_RETURN): T_RETURN {

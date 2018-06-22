@@ -121,6 +121,33 @@ class ResultTest {
     }
 
     @Test
+    fun `fanout propagates failure values`(){
+        val fanoutResult = Result.failure<OtherType, String>("aww").fanout<Nothing> {
+            throw Exception("Should never get here")
+        }
+
+        assertThat(fanoutResult).isEqualTo(Result.failure<OtherType, String>("aww"))
+    }
+
+    @Test
+    fun `fanout pairs two successful results`(){
+        val fanoutResult = Result.success<String, OtherType>("yay").fanout { s ->
+            Result.success<Int, OtherType>(s.length)
+        }
+
+        assertThat(fanoutResult).isEqualTo(Result.success<Pair<String, Int>, String>(Pair("yay", 3)))
+    }
+
+    @Test
+    fun `fanout returns a failure when the second result fails`(){
+        val fanoutResult = Result.success<String, Int>("aww").fanout {
+            Result.failure<OtherType, Int>(666)
+        }
+
+        assertThat(fanoutResult).isEqualTo(Result.failure<Pair<String, OtherType>, Int>(666))
+    }
+
+    @Test
     @Suppress("USELESS_IS_CHECK")
     fun `result success types are covariant`() {
         val stringResult = Result.success<String, OtherType>("foo")
