@@ -1,6 +1,6 @@
 package io.pivotal.iad.result
 
-sealed class Result<out S : Any, F : Any> {
+sealed class Result<out S, F : Any> {
     abstract val success: S
     abstract val failure: F
 
@@ -18,9 +18,9 @@ sealed class Result<out S : Any, F : Any> {
         if (isFailure()) onFailure(failure)
     }
 
-    abstract fun <T : Any> map(mapper: (S) -> T): Result<T, F>
+    abstract fun <T> map(mapper: (S) -> T): Result<T, F>
 
-    fun <T : Any> flatMap(mapper: (S) -> Result<T, F>): Result<T, F> {
+    fun <T> flatMap(mapper: (S) -> Result<T, F>): Result<T, F> {
         return then(
                 onSuccess = { success ->
                     mapper(success).then(
@@ -34,7 +34,7 @@ sealed class Result<out S : Any, F : Any> {
 
     abstract fun <T : Any> mapFailure(mapper: (F) -> T): Result<S, T>
 
-    fun <T : Any> fanout(fn: (S) -> Result<T, F>): Result<Pair<S, T>, F> {
+    fun <T> fanout(fn: (S) -> Result<T, F>): Result<Pair<S, T>, F> {
         return flatMap { originalSuccess -> fn(success).map { newSuccess -> Pair(originalSuccess, newSuccess) } }
     }
 
@@ -59,29 +59,29 @@ sealed class Result<out S : Any, F : Any> {
     abstract fun toNullable(): S?
 
     companion object {
-        fun <S : Any, F : Any> success(value: S): Result<S, F> {
+        fun <S, F : Any> success(value: S): Result<S, F> {
             return Success(value)
         }
 
-        fun <S : Any, F : Any> failure(value: F): Result<S, F> {
+        fun <S, F : Any> failure(value: F): Result<S, F> {
             return Failure(value)
         }
 
-        fun <S : Any, F : Any> fromNullable(maybeNull: S?, whenNull: F): Result<S, F> {
+        fun <S, F : Any> fromNullable(maybeNull: S?, whenNull: F): Result<S, F> {
             return when (maybeNull) {
                 null -> Result.failure(whenNull)
                 else -> Result.success(maybeNull)
             }
         }
 
-        fun <S : Any, F : Any> fromNullable(maybeNull: S?, whenNull: () -> F): Result<S, F> {
+        fun <S, F : Any> fromNullable(maybeNull: S?, whenNull: () -> F): Result<S, F> {
             return when (maybeNull) {
                 null -> Result.failure(whenNull())
                 else -> Result.success(maybeNull)
             }
         }
 
-        fun <S : Any, F : Any> partition(results: List<Result<S, F>>): Pair<List<S>, List<F>> {
+        fun <S, F : Any> partition(results: List<Result<S, F>>): Pair<List<S>, List<F>> {
             val (successes, failures) = results.partition { it.isSuccess() }
 
             return Pair(
@@ -91,15 +91,16 @@ sealed class Result<out S : Any, F : Any> {
         }
     }
 
-    data class Success<out S : Any, F : Any>(private val value: S) : Result<S, F>() {
+    data class Success<out S, F : Any>(private val value: S) : Result<S, F>() {
         override val success: S
             get() = value
 
         override val failure: F
             get() = throw RuntimeException("not a failure")
+
         override fun isSuccess(): Boolean = true
 
-        override fun <T : Any> map(mapper: (S) -> T): Result<T, F> {
+        override fun <T> map(mapper: (S) -> T): Result<T, F> {
             return Success(mapper(value))
         }
 
@@ -110,7 +111,7 @@ sealed class Result<out S : Any, F : Any> {
         override fun toNullable(): S? = success
     }
 
-    data class Failure<out S : Any, F : Any>(private val value: F) : Result<S, F>() {
+    data class Failure<out S, F : Any>(private val value: F) : Result<S, F>() {
         override val failure: F
             get() = value
         override val success: S
@@ -118,7 +119,7 @@ sealed class Result<out S : Any, F : Any> {
 
         override fun isSuccess(): Boolean = false
 
-        override fun <T : Any> map(mapper: (S) -> T): Result<T, F> {
+        override fun <T> map(mapper: (S) -> T): Result<T, F> {
             return Failure(value)
         }
 
